@@ -16,6 +16,7 @@ E-Mail : aneesh@thegeek.in
 #include <QTimer>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QDebug>
 
 struct ProfileControllerWindowData
 {
@@ -24,9 +25,9 @@ struct ProfileControllerWindowData
     QMap<QTime, int> timeProfileMap;
     QLabel* scheduleInfoLabel;
 
-    QTimeEdit* te11 ;
-    QTimeEdit* te12 ;
-    QComboBox* cb1  ;
+    QTimeEdit* teStartTime ;
+    QTimeEdit* teEndTime ;
+    QComboBox* cbProfileChooser  ;
 };
 
 ProfileControllerWindow::ProfileControllerWindow(QWidget *parent) :
@@ -35,7 +36,7 @@ ProfileControllerWindow::ProfileControllerWindow(QWidget *parent) :
     d = new ProfileControllerWindowData;
 
     QHBoxLayout* hLayout = new QHBoxLayout;
-    hLayout->addWidget(new QLabel("Set current profile"));
+    hLayout->addWidget(new QLabel(tr("Set current profile")));
 
     d->comboBox = new QComboBox;
     d->comboBox->addItems(d->symProAccess.profilesInDevice());
@@ -43,15 +44,18 @@ ProfileControllerWindow::ProfileControllerWindow(QWidget *parent) :
     hLayout->addWidget(d->comboBox);
 
     QGridLayout* gLayout = new QGridLayout;
-    d->te11 = new QTimeEdit;
-    d->te12 = new QTimeEdit;
-    d->cb1  = new QComboBox;
-    d->cb1->addItems(d->symProAccess.profilesInDevice());
-    QPushButton* pb = new QPushButton("SET");
-    gLayout->addWidget(d->te11, 0, 0);
-    gLayout->addWidget(d->te12, 0, 1);
-    gLayout->addWidget(d->cb1, 0, 2);
-    gLayout->addWidget(pb, 0, 3);
+    d->teStartTime = new QTimeEdit;
+    d->teEndTime = new QTimeEdit;
+    d->cbProfileChooser  = new QComboBox;
+    d->cbProfileChooser->addItems(d->symProAccess.profilesInDevice());
+    QPushButton* pb = new QPushButton(tr("SET"));
+    gLayout->addWidget(new QLabel(tr("StartTime")), 0, 0);
+    gLayout->addWidget(d->teStartTime, 0, 1);
+    gLayout->addWidget(new QLabel(tr("EndTime")), 1, 0);
+    gLayout->addWidget(d->teEndTime, 1, 1);
+    gLayout->addWidget(new QLabel(tr("Profile")), 2, 0);
+    gLayout->addWidget(d->cbProfileChooser, 2, 1);
+    gLayout->addWidget(pb, 3, 0, 1, 2);
     connect(pb, SIGNAL(clicked()), this, SLOT(addProfileConfiguration()));
 
     d->scheduleInfoLabel = new QLabel;
@@ -65,6 +69,7 @@ ProfileControllerWindow::ProfileControllerWindow(QWidget *parent) :
     vLayout->addWidget(scrollArea);
 
     d->timeProfileMap[QTime(0,0,0)] = 0;
+    d->timeProfileMap[QTime(23, 59, 59)] = 0;
     connect(&d->symProAccess, SIGNAL(currentProfileChanged(int)), d->comboBox, SLOT(setCurrentIndex(int)));
     connect(d->comboBox, SIGNAL(currentIndexChanged(int)), &d->symProAccess, SLOT(setProfile(int)));
 }
@@ -82,9 +87,9 @@ void ProfileControllerWindow::paintEvent(QPaintEvent *e)
 
 void ProfileControllerWindow::addProfileConfiguration()
 {
-    d->timeProfileMap[d->te11->time()] = d->cb1->currentIndex();
-    if(!d->timeProfileMap.contains(d->te12->time()))
-        d->timeProfileMap[d->te12->time()] = 0;
+    d->timeProfileMap[d->teStartTime->time()] = d->cbProfileChooser->currentIndex();
+    if(!d->timeProfileMap.contains(d->teEndTime->time()))
+        d->timeProfileMap[d->teEndTime->time()] = 0;
 
     QString info;
     for(int i=0; i<d->timeProfileMap.keys().count()-1; ++i)
@@ -96,4 +101,28 @@ void ProfileControllerWindow::addProfileConfiguration()
         info += timeStamp + " : " + profileName + "\n";
     }
     d->scheduleInfoLabel->setText(info);
+    this->switchCurrentProfile();
+}
+
+void ProfileControllerWindow::switchCurrentProfile()
+{
+    QTime currentTime = QTime::currentTime();
+    QTime indexTime;
+    unsigned long long int durationToWait = -1;
+    for(int i=0; i<d->timeProfileMap.count()-1; ++i)
+    {
+        QTime startTime = d->timeProfileMap.keys().at(i);
+        QTime endTime = d->timeProfileMap.keys().at(i+1);
+        if(currentTime >= startTime && currentTime < endTime)
+        {
+            indexTime = startTime;
+            durationToWait = QTime::currentTime().msecsTo(endTime);
+
+            d->symProAccess.setProfile(d->timeProfileMap.value(startTime));
+            break;
+        }
+    }
+    qDebug() << "Changed profile at : " << currentTime;
+    qDebug() << "Next change in [" << durationToWait << "] msecs or [" << durationToWait / 1000 << "] secs" ;
+    QTimer::singleShot(durationToWait, this, SLOT(switchCurrentProfile()));
 }

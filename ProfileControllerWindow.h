@@ -21,6 +21,7 @@ protected:
 
 protected slots:
     void addProfileConfiguration();
+    void switchCurrentProfile();
 
 private:
     ProfileControllerWindowData* d;
