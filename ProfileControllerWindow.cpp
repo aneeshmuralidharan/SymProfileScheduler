@@ -64,6 +64,7 @@ ProfileControllerWindow::ProfileControllerWindow(QWidget *parent) :
     vLayout->addLayout(gLayout);
     vLayout->addWidget(scrollArea);
 
+    d->timeProfileMap[QTime(0,0,0)] = 0;
     connect(&d->symProAccess, SIGNAL(currentProfileChanged(int)), d->comboBox, SLOT(setCurrentIndex(int)));
     connect(d->comboBox, SIGNAL(currentIndexChanged(int)), &d->symProAccess, SLOT(setProfile(int)));
 }
@@ -88,8 +89,8 @@ void ProfileControllerWindow::addProfileConfiguration()
     QString info;
     for(int i=0; i<d->timeProfileMap.keys().count()-1; ++i)
     {
-        QTime startTime = d->timeProfileMap.key(i);
-        QTime endTime = d->timeProfileMap.key(i+1);
+        QTime startTime = d->timeProfileMap.keys().at(i);
+        QTime endTime = d->timeProfileMap.keys().at(i+1);
         QString timeStamp = startTime.toString() + " - " + endTime.toString();
         QString profileName = d->symProAccess.profileAt(d->timeProfileMap.value(startTime));
         info += timeStamp + " : " + profileName + "\n";
