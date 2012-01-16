@@ -14,24 +14,48 @@ symbian:TARGET.UID3 = 0xE003384B
 #symbian:DEPLOYMENT.installer_header = 0x2002CCCF
 
 # Allow network access on Symbian
-symbian:TARGET.CAPABILITY += NetworkServices
+symbian:{
+
+    TARGET.CAPABILITY = ReadUSerData \
+        WriteUserData \
+        NetworkServices \
+        LocalServices \
+        WriteDeviceData \
+        UserEnvironment
+
+    INCLUDEPATH += C:/QtSDK/Symbian/SDKs/Symbian3Qt474/epoc32/include \
+                   C:/QtSDK/Symbian/SDKs/Symbian3Qt474/epoc32/include/platform \
+                   C:/QtSDK/Symbian/SDKs/Symbian3Qt474/epoc32/include/app \
+                   C:/QtSDK/Symbian/SDKs/Symbian3Qt474/epoc32/include/mw
+
+    LIBS += -LC:\QtSDK\Symbian\SDKs\Symbian3Qt474\epoc32\release\armv5\lib -lprofileengine \
+       -letel3rdparty \
+       -lfeatdiscovery
+}
+
 
 # If your application uses the Qt Mobility libraries, uncomment
 # the following lines and add the respective components to the 
 # MOBILITY variable. 
-# CONFIG += mobility
-# MOBILITY +=
+CONFIG += mobility
+MOBILITY += systeminfo
 
 SOURCES += \
     MainWindow.cpp \
-    Main.cpp
+    Main.cpp \
+    SymbianProfileAccess.cpp \
+    ProfileControllerWindow.cpp
 HEADERS += \
-    MainWindow.h
+    MainWindow.h \
+    SymbianProfileAccess.h \
+    ProfileControllerWindow.h
 FORMS +=
 
 # Please do not modify the following two lines. Required for deployment.
 include(deployment.pri)
 qtcAddDeployment()
+
+
 
 
 
