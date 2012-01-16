@@ -3,15 +3,18 @@ Author : Aneesh Muralidharan
 E-Mail : aneesh@thegeek.in
 *******************************************************************************/
 
-#include "MainWindow.h"
-#include <QtGui/QApplication>
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-int main(int argc, char *argv[])
+#include <QMainWindow>
+
+class MainWindow : public QMainWindow
 {
-    QApplication app(argc, argv);
+    Q_OBJECT
 
-    MainWindow mainWindow;
-    mainWindow.showFullScreen();
+public:
+    MainWindow(QWidget *parent = 0);
 
-    return app.exec();
-}
+};
+
+#endif // MAINWINDOW_H

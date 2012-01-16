@@ -4,7 +4,7 @@
 # dir1.source = mydir
 DEPLOYMENTFOLDERS = # file1 dir1
 
-symbian:TARGET.UID3 = 0x2005E347
+symbian:TARGET.UID3 = 0xE003384B
 
 # Smart Installer package's UID
 # This UID is from the protected range 
@@ -22,13 +22,20 @@ symbian:TARGET.CAPABILITY += NetworkServices
 # CONFIG += mobility
 # MOBILITY +=
 
-SOURCES += main.cpp
-HEADERS +=
+SOURCES += \
+    MainWindow.cpp \
+    Main.cpp
+HEADERS += \
+    MainWindow.h
 FORMS +=
 
 # Please do not modify the following two lines. Required for deployment.
 include(deployment.pri)
 qtcAddDeployment()
+
+
+
+
 
 
 

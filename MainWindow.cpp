@@ -4,14 +4,8 @@ E-Mail : aneesh@thegeek.in
 *******************************************************************************/
 
 #include "MainWindow.h"
-#include <QtGui/QApplication>
 
-int main(int argc, char *argv[])
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent)
 {
-    QApplication app(argc, argv);
-
-    MainWindow mainWindow;
-    mainWindow.showFullScreen();
-
-    return app.exec();
 }
